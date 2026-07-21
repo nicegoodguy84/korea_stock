@@ -1,0 +1,5 @@
+pandas
+FinanceDataReader
+tqdm
+matplotlib
+numpy
