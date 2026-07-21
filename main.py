@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import FinanceDataReader as fdr
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from tqdm import tqdm
 import urllib.request
 import re
@@ -211,6 +211,10 @@ def generate_chart_image(ticker, name, df_hist, w_point, m_point, base_stage, rs
 
 def generate_combined_html_report(df_result, today_str, total_scanned, passed_count, chart_list):
     """최종 통합 웹 보고서 템플릿 마크업 빌더"""
+    # 한국 시간(KST: UTC+9)으로 실행 생성 일시 계산
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst).strftime("%Y년 %m월 %d일 %H시 %M분")
+
     table_rows = ""
     for idx, row in df_result.iterrows():
         rank = idx + 1
@@ -284,13 +288,15 @@ def generate_combined_html_report(df_result, today_str, total_scanned, passed_co
         .stat-card {{ background: linear-gradient(135deg, #4f46e5, #3b82f6); color: white; border-radius: 16px; padding: 25px; text-align: center; }}
         .table th {{ background-color: #f8fafc; color: #64748b; font-weight: 600; text-align: center; }}
         .font-bold {{ font-weight: bold; }}
+        .update-time {{ background-color: #e2e8f0; color: #475569; display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.95rem; }}
     </style>
 </head>
 <body>
     <div class="container" style="max-width: 1350px;">
         <div class="text-center mb-5">
             <h1 class="fw-extrabold" style="color: #0f172a;">📈 정통 추세추종 융합(와인스타인 2Stage × 미너비니 VCP) 스크리너</h1>
-            <p class="text-muted fs-5">분석 기준일: {today_str[:4]}-{today_str[4:6]}-{today_str[6:]} | 가짜 돌파를 배제한 완전체 시스템</p>
+            <p class="text-muted fs-5 mb-2">분석 기준일: {today_str[:4]}-{today_str[4:6]}-{today_str[6:]} | 가짜 돌파를 배제한 완전체 시스템</p>
+            <div class="update-time mt-1">⏰ 리포트 산출 일시: {now_kst} (KST)</div>
         </div>
         <div class="row mb-4">
             <div class="col-md-4"><div class="stat-card"><h5>총 스캔 후보군</h5><h2 class="display-5 fw-bold">{total_scanned}개</h2><p class="mb-0">테마 및 시총 상위 추출 종목</p></div></div>
